@@ -24,6 +24,7 @@ class User extends Authenticatable
         'has_paid',
         'watched_movies',
         'favorite_movies',
+        'social_handle',
     ];
 
     /**
