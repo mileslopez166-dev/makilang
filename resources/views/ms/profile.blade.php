@@ -114,6 +114,32 @@
             color: #374151;
         }
 
+        .profile-user strong {
+            display: block;
+            font-size: 18px;
+            color: #111827;
+        }
+
+        .profile-edit-trigger {
+            margin-top: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 38px;
+            padding: 0 14px;
+            border: 0;
+            border-radius: 999px;
+            background: #111827;
+            color: #ffffff;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .profile-edit-trigger:hover {
+            background: #1f2937;
+        }
+
         .profile-socials {
             display: flex;
             align-items: center;
@@ -169,6 +195,16 @@
         .profile-link svg {
             width: 18px;
             height: 18px;
+        }
+
+        .profile-status {
+            margin-top: 12px;
+            padding: 10px 12px;
+            border-radius: 12px;
+            background: #dcfce7;
+            color: #166534;
+            font-size: 12px;
+            font-weight: 700;
         }
 
         .profile-main {
@@ -309,6 +345,73 @@
             color: #111827;
         }
 
+        .profile-modal-copy {
+            margin: 10px 0 0;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .profile-form-row {
+            margin-top: 16px;
+        }
+
+        .profile-form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #374151;
+        }
+
+        .profile-form-input {
+            width: 100%;
+            height: 44px;
+            padding: 0 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 14px;
+            background: #f8fafc;
+            color: #111827;
+            outline: none;
+        }
+
+        .profile-form-input:focus {
+            border-color: #93c5fd;
+            box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.25);
+        }
+
+        .profile-form-error {
+            margin-top: 8px;
+            color: #b91c1c;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .profile-modal-actions {
+            margin-top: 22px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .profile-modal-button {
+            height: 40px;
+            padding: 0 16px;
+            border: 0;
+            border-radius: 999px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .profile-modal-button.secondary {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .profile-modal-button.primary {
+            background: #111827;
+            color: #ffffff;
+        }
+
         @media (max-width: 1100px) {
             .profile-grid {
                 grid-template-columns: 1fr;
@@ -386,7 +489,20 @@
                 <div class="profile-user">
                     <strong>{{ auth()->user()->name }}</strong><br>
                     {{ auth()->user()->email }}
+
+                    @if (session('status') === 'profile-updated')
+                        <div class="profile-status">Profile name updated successfully.</div>
+                    @endif
                 </div>
+
+                <button
+                    type="button"
+                    class="profile-edit-trigger"
+                    x-data
+                    x-on:click="$dispatch('open-modal', 'edit-user-name')"
+                >
+                    Edit User
+                </button>
 
                 <div class="profile-socials">
                     <a href="{{ $socialLinks[0]['url'] }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $socialLinks[0]['label'] }}">
@@ -495,4 +611,37 @@
             </aside>
         </div>
     </div>
+
+    <x-modal name="edit-user-name" :show="$errors->has('name')" focusable>
+        <form method="post" action="{{ route('profile.update') }}" class="p-6">
+            @csrf
+            @method('patch')
+
+            <h2 class="text-lg font-medium text-gray-900">Edit User</h2>
+            <p class="profile-modal-copy">Update your display name for your Movie Square profile.</p>
+
+            <div class="profile-form-row">
+                <label class="profile-form-label" for="profile-name">Name</label>
+                <input
+                    id="profile-name"
+                    name="name"
+                    type="text"
+                    class="profile-form-input"
+                    value="{{ old('name', auth()->user()->name) }}"
+                    required
+                >
+
+                @if($errors->has('name'))
+                    <div class="profile-form-error">{{ $errors->first('name') }}</div>
+                @endif
+            </div>
+
+            <input type="hidden" name="email" value="{{ auth()->user()->email }}">
+
+            <div class="profile-modal-actions">
+                <button type="button" class="profile-modal-button secondary" x-on:click="$dispatch('close')">Cancel</button>
+                <button type="submit" class="profile-modal-button primary">Save</button>
+            </div>
+        </form>
+    </x-modal>
 @endsection

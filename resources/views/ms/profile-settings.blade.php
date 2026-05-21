@@ -133,6 +133,39 @@
             background: #e2e8f0;
             color: #0f172a;
         }
+
+        .settings-danger-card {
+            border: 1px solid #fecdd3;
+            background: #fff1f2;
+        }
+
+        .settings-danger-copy {
+            margin: 0;
+            color: #9f1239;
+            line-height: 1.6;
+        }
+
+        .settings-button.danger {
+            background: #be123c;
+            color: #ffffff;
+        }
+
+        .settings-button.danger:hover {
+            background: #9f1239;
+        }
+
+        .settings-modal-copy {
+            margin: 12px 0 0;
+            color: #64748b;
+            line-height: 1.6;
+        }
+
+        .settings-error {
+            margin-top: 10px;
+            color: #be123c;
+            font-size: 13px;
+            font-weight: 600;
+        }
     </style>
 
     <div class="settings-shell">
@@ -200,6 +233,52 @@
                     <button type="button" class="settings-button secondary">Cancel</button>
                 </div>
             </section>
+
+            <section class="settings-card settings-danger-card">
+                <h2>Delete Account</h2>
+                <p class="settings-danger-copy">Permanently delete your Movie Square account. After deletion, you will be signed out and sent to the login page.</p>
+
+                <div class="settings-actions">
+                    <button
+                        type="button"
+                        class="settings-button danger"
+                        x-data
+                        x-on:click="$dispatch('open-modal', 'confirm-user-deletion')"
+                    >
+                        Delete Account
+                    </button>
+                </div>
+            </section>
         </div>
     </div>
+
+    <x-modal name="confirm-user-deletion" :show="$errors->userDeletion->isNotEmpty()" focusable>
+        <form method="post" action="{{ route('profile.destroy') }}" class="p-6">
+            @csrf
+            @method('delete')
+
+            <h2 class="text-lg font-medium text-gray-900">Are you sure you want to delete your account?</h2>
+            <p class="settings-modal-copy">This action is permanent. Enter your password to confirm account deletion.</p>
+
+            <div class="mt-6">
+                <label class="settings-label" for="delete-password">Password</label>
+                <input
+                    id="delete-password"
+                    name="password"
+                    type="password"
+                    class="settings-input"
+                    placeholder="Password"
+                >
+
+                @if($errors->userDeletion->has('password'))
+                    <div class="settings-error">{{ $errors->userDeletion->first('password') }}</div>
+                @endif
+            </div>
+
+            <div class="mt-6 flex justify-end gap-3">
+                <button type="button" class="settings-button secondary" x-on:click="$dispatch('close')">Cancel</button>
+                <button type="submit" class="settings-button danger">Delete Account</button>
+            </div>
+        </form>
+    </x-modal>
 @endsection
